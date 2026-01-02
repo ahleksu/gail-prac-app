@@ -31,7 +31,7 @@
   <div class="flex justify-end">
     <p-button
       [label]="showAll() ? 'Collapse all questions' : 'Expand all questions'"
-      icon="pi pi-minus"
+      [icon]="showAll() ? 'pi pi-minus' : 'pi pi-plus'"
       (onClick)="toggleCollapseAll()"
       class="p-button-sm"
     />
