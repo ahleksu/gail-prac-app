@@ -44,11 +44,11 @@ If you notice any inaccuracies or have suggestions for improvement, feel free to
 ## ⚠️ Limitations (Vercel Deployment)
 
 Because the app is deployed as a **static SPA** on Vercel:
-- 🧭 Application **state resets** on page refresh.
-- 📥 No backend — **progress and results are not saved** permanently.
-- 📊 Chart data is computed in-memory and not persisted.
+- 🧭 Quiz results are stored in **sessionStorage** and persist during the browser session, but are cleared when the tab/browser is closed.
+- 📥 No backend — **quiz history is not saved** permanently across browser sessions.
+- 🔄 Active quiz progress (unanswered questions) is not persisted — refreshing during a quiz will restart it.
 
-To persist session or quiz history, consider integrating Firebase, Supabase, or another backend.
+To persist quiz history across sessions or devices, consider integrating Firebase, Supabase, or another backend.
 
 ---
 

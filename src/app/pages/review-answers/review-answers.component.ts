@@ -1,22 +1,12 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ChipModule } from 'primeng/chip';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
-
-interface ReviewQuestion {
-  id: number;
-  question: string;
-  domain: string;
-  type: 'single' | 'multiple';
-  answers: { text: string; status: 'correct' | 'skipped'; explanation: string }[];
-  userAnswer: string[];
-  resource?: string;
-  isCorrect?: boolean;
-  isSkipped?: boolean;
-}
+import { QuizService } from '../../core/quiz.service';
+import { QuestionWithAnswer } from '../../core/quiz.model';
 
 @Component({
   selector: 'app-review-answers',
@@ -25,11 +15,12 @@ interface ReviewQuestion {
   templateUrl: './review-answers.component.html',
   styleUrl: './review-answers.component.css'
 })
-export class ReviewAnswersComponent {
+export class ReviewAnswersComponent implements OnInit {
   private router = inject(Router);
+  private quizService = inject(QuizService);
 
-  allQuestions = signal<ReviewQuestion[]>([]);
-  filteredQuestions = signal<ReviewQuestion[]>([]);
+  allQuestions = signal<QuestionWithAnswer[]>([]);
+  filteredQuestions = signal<QuestionWithAnswer[]>([]);
   selectedDomain = signal('All domains');
   showAll = signal(true);
 
@@ -46,8 +37,10 @@ export class ReviewAnswersComponent {
   incorrectAnswers = computed(() => this.allQuestions().filter(q => !q.isCorrect && !q.isSkipped).length);
   skippedAnswers = computed(() => this.allQuestions().filter(q => q.isSkipped).length);
 
-  constructor() {
+  ngOnInit(): void {
+    // Try to get state from navigation first
     const state = this.router.getCurrentNavigation()?.extras.state;
+    let questionsData = state && state['questions']?.length ? state['questions'] : null;
     
     if (state && state['questions']?.length) {
       const questions = state['questions'].map((q: ReviewQuestion) => {
@@ -68,8 +61,27 @@ export class ReviewAnswersComponent {
       this.allQuestions.set(questions);
       this.filteredQuestions.set([...questions]);
     } else {
+      console.warn('ReviewAnswersComponent: Missing or invalid navigation state. Redirecting to home.');
       this.router.navigate(['/']);
     }
+    
+    const questions = questionsData.map((q: QuestionWithAnswer) => {
+      const correctAnswers = q.answers.filter(a => a.status === 'correct').map(a => a.text);
+      const hasAnswer = q.userAnswer?.length > 0;
+      const isCorrect =
+        hasAnswer &&
+        correctAnswers.length === q.userAnswer.length &&
+        correctAnswers.every(ans => q.userAnswer.includes(ans));
+
+      return {
+        ...q,
+        isCorrect,
+        isSkipped: !hasAnswer
+      };
+    });
+
+    this.allQuestions.set(questions);
+    this.filteredQuestions.set([...questions]);
   }
 
   filterQuestions(): void {
@@ -86,7 +98,7 @@ export class ReviewAnswersComponent {
     this.filterQuestions();
   }
 
-  isUserIncorrect(q: ReviewQuestion, answer: { status: string; text: string }): boolean {
+  isUserIncorrect(q: QuestionWithAnswer, answer: { status: string; text: string }): boolean {
     return q.userAnswer.includes(answer.text) && answer.status !== 'correct';
   }
 

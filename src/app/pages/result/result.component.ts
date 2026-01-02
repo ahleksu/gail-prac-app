@@ -21,6 +21,7 @@ interface DomainBreakdown {
 })
 export class ResultComponent implements OnInit {
   private router = inject(Router);
+  private quizService = inject(QuizService);
 
   totalQuestions = signal(0);
   correctAnswers = signal(0);
@@ -35,8 +36,29 @@ export class ResultComponent implements OnInit {
   barChartData = signal<ChartData<'bar'> | null>(null);
   barChartOptions = signal<ChartOptions<'bar'> | null>(null);
 
+  private isValidQuizState(state: any): boolean {
+    return state && 
+           typeof state['total'] !== 'undefined' && 
+           typeof state['correct'] !== 'undefined' &&
+           state['timestamp'] !== undefined &&
+           state['domainSummary'] !== undefined;
+  }
+
   ngOnInit(): void {
-    const state = history.state;
+    // Try to get state from history.state first, fall back to sessionStorage
+    let state = history.state;
+    
+    // If no valid state from navigation, try sessionStorage
+    if (!this.isValidQuizState(state)) {
+      const storedResults = this.quizService.getQuizResults();
+      if (storedResults && this.isValidQuizState(storedResults)) {
+        state = storedResults;
+      } else {
+        // No results available, redirect to home
+        this.router.navigate(['/']);
+        return;
+      }
+    }
     
     if (state) {
       const total = state['total'] ?? 0;
@@ -151,9 +173,21 @@ export class ResultComponent implements OnInit {
   }
 
   goToReview(): void {
+    // Get questions from history.state or sessionStorage
+    let questions: QuestionWithAnswer[] = [];
+    
+    if (history.state && history.state.questions) {
+      questions = history.state.questions;
+    } else {
+      const storedResults = this.quizService.getQuizResults();
+      if (storedResults && storedResults.questions) {
+        questions = storedResults.questions;
+      }
+    }
+
     this.router.navigate(['/review'], {
       state: {
-        questions: history.state.questions ?? []
+        questions: questions
       }
     });
   }

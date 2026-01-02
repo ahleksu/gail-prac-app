@@ -64,6 +64,9 @@ export class QuizComponent implements OnInit {
   ngOnInit(): void {
     this.quizType = this.route.snapshot.queryParamMap.get('type') ?? 'all';
 
+    // Clear previous quiz results from sessionStorage when starting a new quiz
+    this.quizService.clearQuizResults();
+
     this.quizService.loadQuestions(this.quizType).subscribe((data) => {
       // Shuffle questions for a randomized quiz experience
       const loadedQuestions = this.quizService.shuffleArray([...data]);
@@ -214,15 +217,20 @@ export class QuizComponent implements OnInit {
       isSkipped: !states[q.id]
     }));
 
+    const resultsData = {
+      total,
+      correct,
+      timestamp,
+      domainSummary,
+      type: this.quizType,
+      questions: questionsWithAnswers
+    };
+
+    // Save to sessionStorage for persistence across page refreshes
+    this.quizService.saveQuizResults(resultsData);
+
     this.router.navigate(['/result'], {
-      state: {
-        total,
-        correct,
-        timestamp,
-        domainSummary,
-        type: this.quizType,
-        questions: questionsWithAnswers
-      }
+      state: resultsData
     });
   }
 
