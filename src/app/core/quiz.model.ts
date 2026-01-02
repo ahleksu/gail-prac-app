@@ -31,3 +31,13 @@ export interface AnswerState {
   showExplanation: boolean;
   isCorrect: boolean;
 }
+
+export interface QuizResults {
+  total: number;
+  correct: number;
+  timestamp: Date;
+  domainSummary: Record<string, DomainSummary>;
+  type: string;
+  questions: QuestionWithAnswer[];
+  skipped?: number;
+}

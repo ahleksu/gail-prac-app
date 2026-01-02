@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Question, QuestionWithAnswer, AnswerState, DomainSummary } from './quiz.model';
+import { Question, QuestionWithAnswer, AnswerState, DomainSummary, QuizResults } from './quiz.model';
 import { Observable, map } from 'rxjs';
 
 // Domain type mapping - maps route parameter to actual domain names in JSON
@@ -144,5 +144,68 @@ export class QuizService {
     }
 
     return result;
+  }
+
+  /**
+   * Checks if sessionStorage is available
+   */
+  private isSessionStorageAvailable(): boolean {
+    return typeof sessionStorage !== 'undefined';
+  }
+
+  /**
+   * Saves quiz results to sessionStorage for persistence across page refreshes
+   */
+  saveQuizResults(results: QuizResults): void {
+    if (!this.isSessionStorageAvailable()) {
+      console.warn('sessionStorage is not available in this environment');
+      return;
+    }
+    try {
+      sessionStorage.setItem('quizResults', JSON.stringify({
+        ...results,
+        timestamp: results.timestamp.toISOString()
+      }));
+    } catch (error) {
+      console.error('Failed to save quiz results to sessionStorage:', error);
+    }
+  }
+
+  /**
+   * Retrieves quiz results from sessionStorage
+   */
+  getQuizResults(): QuizResults | null {
+    if (!this.isSessionStorageAvailable()) {
+      return null;
+    }
+    try {
+      const data = sessionStorage.getItem('quizResults');
+      if (data) {
+        const parsed = JSON.parse(data);
+        // Convert timestamp back to Date object
+        if (parsed.timestamp) {
+          parsed.timestamp = new Date(parsed.timestamp);
+        }
+        return parsed as QuizResults;
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to retrieve quiz results from sessionStorage:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Clears quiz results from sessionStorage
+   */
+  clearQuizResults(): void {
+    if (!this.isSessionStorageAvailable()) {
+      return;
+    }
+    try {
+      sessionStorage.removeItem('quizResults');
+    } catch (error) {
+      console.error('Failed to clear quiz results from sessionStorage:', error);
+    }
   }
 }
