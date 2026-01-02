@@ -37,12 +37,20 @@ export class ResultComponent implements OnInit {
   barChartData = signal<any>(null);
   barChartOptions = signal<any>(null);
 
+  private isValidQuizState(state: any): boolean {
+    return state && 
+           typeof state['total'] !== 'undefined' && 
+           typeof state['correct'] !== 'undefined' &&
+           state['timestamp'] !== undefined &&
+           state['domainSummary'] !== undefined;
+  }
+
   ngOnInit(): void {
     // Try to get state from history.state first, fall back to sessionStorage
     let state = history.state;
     
     // If no valid state from navigation, try sessionStorage
-    if (!state || state['total'] === undefined) {
+    if (!this.isValidQuizState(state)) {
       const storedResults = this.quizService.getQuizResults();
       if (storedResults) {
         state = storedResults;
