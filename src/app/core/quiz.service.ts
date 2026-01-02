@@ -143,10 +143,17 @@ export class QuizService {
   }
 
   /**
+   * Checks if sessionStorage is available
+   */
+  private isSessionStorageAvailable(): boolean {
+    return typeof sessionStorage !== 'undefined';
+  }
+
+  /**
    * Saves quiz results to sessionStorage for persistence across page refreshes
    */
   saveQuizResults(results: QuizResults): void {
-    if (typeof sessionStorage === 'undefined') {
+    if (!this.isSessionStorageAvailable()) {
       console.warn('sessionStorage is not available in this environment');
       return;
     }
@@ -164,7 +171,7 @@ export class QuizService {
    * Retrieves quiz results from sessionStorage
    */
   getQuizResults(): QuizResults | null {
-    if (typeof sessionStorage === 'undefined') {
+    if (!this.isSessionStorageAvailable()) {
       return null;
     }
     try {
@@ -188,7 +195,7 @@ export class QuizService {
    * Clears quiz results from sessionStorage
    */
   clearQuizResults(): void {
-    if (typeof sessionStorage === 'undefined') {
+    if (!this.isSessionStorageAvailable()) {
       return;
     }
     try {

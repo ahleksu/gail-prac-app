@@ -52,7 +52,7 @@ export class ResultComponent implements OnInit {
     // If no valid state from navigation, try sessionStorage
     if (!this.isValidQuizState(state)) {
       const storedResults = this.quizService.getQuizResults();
-      if (storedResults) {
+      if (storedResults && this.isValidQuizState(storedResults)) {
         state = storedResults;
       } else {
         // No results available, redirect to home
