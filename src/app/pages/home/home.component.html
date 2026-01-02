@@ -1,0 +1,148 @@
+<div class="max-w-6xl mx-auto px-4 py-10 text-center" [@fadeIn]>
+  <!-- Title -->
+  <h1 class="text-3xl font-bold mb-2">Google AI Leader Practice Exam</h1>
+  <p class="text-sm text-gray-500">Developed by: ahleksu.dev</p>
+
+  <!-- Social Icons -->
+  <div class="flex justify-center space-x-6 mt-3 text-gray-600 text-xl">
+    <a
+      href="https://youtube.com/@ahleksu"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <i
+        class="pi pi-youtube hover:text-red-600 cursor-pointer transition duration-150 ease-in-out"
+      ></i>
+    </a>
+    <a
+      href="https://www.linkedin.com/in/ahleksu"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <i
+        class="pi pi-linkedin hover:text-blue-700 cursor-pointer transition duration-150 ease-in-out"
+      ></i>
+    </a>
+    <a
+      href="https://www.facebook.com/ahleksu"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <i
+        class="pi pi-facebook hover:text-blue-600 cursor-pointer transition duration-150 ease-in-out"
+      ></i>
+    </a>
+    <a
+      href="https://github.com/ahleksu"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <i
+        class="pi pi-github hover:text-gray-800 cursor-pointer transition duration-150 ease-in-out"
+      ></i>
+    </a>
+  </div>
+
+  <!-- Shuffle Questions Option -->
+  <div class="flex justify-center items-center gap-2 mt-8 mb-4">
+    <p-checkbox
+      [ngModel]="shuffleQuestions()"
+      (ngModelChange)="shuffleQuestions.set($event)"
+      [binary]="true"
+      inputId="shuffle"
+    />
+    <label for="shuffle" class="text-sm text-gray-700 cursor-pointer">
+      Shuffle questions (uncheck for consistent order when retaking)
+    </label>
+  </div>
+
+  <!-- Grid Layout -->
+  <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 mt-10">
+    <!-- All Domains -->
+    <div
+      class="col-span-1 sm:col-span-2 lg:col-span-12 border rounded-lg p-6 text-left shadow-sm hover:shadow-lg transform hover:scale-105 transition duration-300"
+    >
+      <h2 class="text-xl font-semibold mb-2">All Domains Quiz</h2>
+      <p class="mb-4">Take a comprehensive quiz covering all domains of the Google Generative AI Leader certification.</p>
+      <p-button label="Start Quiz" (onClick)="startQuiz('all')" />
+    </div>
+
+    <!-- Domain Sections -->
+    <div
+      class="col-span-1 sm:col-span-1 lg:col-span-6 border rounded-lg p-6 text-left shadow-sm hover:shadow-lg transform hover:scale-105 transition duration-300"
+    >
+      <h2 class="text-xl font-semibold mb-2">Domain 1: Fundamentals of Gen AI</h2>
+      <p class="mb-4">Covers foundational concepts of generative AI, LLMs, and transformers.</p>
+      <p-button label="Start Quiz" (onClick)="startQuiz('fundamentals')" />
+    </div>
+
+    <div
+      class="col-span-1 sm:col-span-1 lg:col-span-6 border rounded-lg p-6 text-left shadow-sm hover:shadow-lg transform hover:scale-105 transition duration-300"
+    >
+      <h2 class="text-xl font-semibold mb-2">Domain 2: Google Cloud's Gen AI Offerings</h2>
+      <p class="mb-4">Covers Vertex AI, Gemini, and Google Cloud AI services.</p>
+      <p-button label="Start Quiz" (onClick)="startQuiz('google_cloud')" />
+    </div>
+
+    <div
+      class="col-span-1 sm:col-span-1 lg:col-span-6 border rounded-lg p-6 text-left shadow-sm hover:shadow-lg transform hover:scale-105 transition duration-300"
+    >
+      <h2 class="text-xl font-semibold mb-2">Domain 3: Techniques to Improve Model Output</h2>
+      <p class="mb-4">Covers prompt engineering, fine-tuning, and optimization techniques.</p>
+      <p-button label="Start Quiz" (onClick)="startQuiz('techniques')" />
+    </div>
+
+    <div
+      class="col-span-1 sm:col-span-1 lg:col-span-6 border rounded-lg p-6 text-left shadow-sm hover:shadow-lg transform hover:scale-105 transition duration-300"
+    >
+      <h2 class="text-xl font-semibold mb-2">Domain 4: Business Strategies & Responsible AI</h2>
+      <p class="mb-4">Covers business use cases, deployment strategies, and responsible AI practices.</p>
+      <p-button label="Start Quiz" (onClick)="startQuiz('business')" />
+    </div>
+  </div>
+
+  <!-- Disclaimer Section -->
+  <div class="mt-16 text-sm text-gray-500 max-w-4xl mx-auto border-t pt-6">
+    <p>
+      <strong>Disclaimer:</strong> This practice exam web application is a
+      project designed for educational purposes. It is not
+      affiliated with or endorsed by Google or any official certification body.
+      The questions and answers provided are based on publicly available data.
+    </p>
+    <p class="mt-2">
+      If you notice any inaccuracies or have suggestions for improvement, please
+      <a
+        href="https://github.com/ahleksu/gail-prac-app/issues"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="underline"
+      >
+        file an issue in the GitHub repository</a>.
+    </p>
+  </div>
+
+  <!-- Support Developer Section -->
+  <div class="mt-12 text-gray-700 max-w-3xl mx-auto text-center">
+    <p class="text-base md:text-lg font-medium">
+      ☕ Enjoying this app? Help keep it brewing!
+    </p>
+    <p class="mt-1 text-sm text-gray-500 px-4 md:px-0">
+      Love this app? Fuel it with a coffee! Click on my icon below ⬇️☕
+    </p>
+
+    <div class="mt-6 flex flex-col items-center justify-center">
+      <a
+        href="https://drive.google.com/file/d/1StJEkH_TAVs5FDnJImQVDnZ5yliRkZsd/view?usp=sharing"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="transform hover:scale-105 transition duration-200"
+      >
+        <img
+          src="ahleksu-notion-face.png"
+          alt="Buy me a coffee"
+          class="w-30 h-30 mx-auto"
+        />
+      </a>
+    </div>
+  </div>
+</div>
