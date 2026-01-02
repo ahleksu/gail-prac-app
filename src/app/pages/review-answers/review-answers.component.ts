@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ChipModule } from 'primeng/chip';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
+import { QuizService } from '../../core/quiz.service';
 
 interface ReviewQuestion {
   id: number;
@@ -27,19 +28,14 @@ interface ReviewQuestion {
 })
 export class ReviewAnswersComponent {
   private router = inject(Router);
+  private quizService = inject(QuizService);
 
   allQuestions = signal<ReviewQuestion[]>([]);
   filteredQuestions = signal<ReviewQuestion[]>([]);
   selectedDomain = signal('All domains');
   showAll = signal(true);
 
-  domainOptions = signal([
-    { name: 'All domains', value: 'All domains' },
-    { name: 'Fundamentals of gen AI', value: 'Fundamentals of gen AI' },
-    { name: "Google Cloud's gen AI offerings", value: "Google Cloud's gen AI offerings" },
-    { name: 'Responsible AI practices', value: 'Responsible AI practices' },
-    { name: 'Gen AI applications', value: 'Gen AI applications' }
-  ]);
+  domainOptions = signal<{ name: string; value: string }[]>([]);
 
   totalQuestions = computed(() => this.allQuestions().length);
   correctAnswers = computed(() => this.allQuestions().filter(q => q.isCorrect).length);
@@ -67,6 +63,20 @@ export class ReviewAnswersComponent {
 
       this.allQuestions.set(questions);
       this.filteredQuestions.set([...questions]);
+      
+      // Derive domain options from the actual questions
+      const uniqueDomains = new Set<string>();
+      questions.forEach((q: ReviewQuestion) => {
+        if (q.domain) {
+          uniqueDomains.add(q.domain);
+        }
+      });
+      
+      const domains = Array.from(uniqueDomains)
+        .sort()
+        .map(domain => ({ name: domain, value: domain }));
+      
+      this.domainOptions.set([{ name: 'All domains', value: 'All domains' }, ...domains]);
     } else {
       this.router.navigate(['/']);
     }
