@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Question, QuestionWithAnswer, AnswerState, DomainSummary } from './quiz.model';
+import { Question, QuestionWithAnswer, AnswerState, DomainSummary, QuizResults } from './quiz.model';
 import { Observable, map } from 'rxjs';
 
 // Domain type mapping - maps route parameter to actual domain names in JSON
@@ -145,15 +145,7 @@ export class QuizService {
   /**
    * Saves quiz results to sessionStorage for persistence across page refreshes
    */
-  saveQuizResults(results: {
-    total: number;
-    correct: number;
-    timestamp: Date;
-    domainSummary: Record<string, DomainSummary>;
-    type: string;
-    questions: any[];
-    skipped?: number;
-  }): void {
+  saveQuizResults(results: QuizResults): void {
     try {
       sessionStorage.setItem('quizResults', JSON.stringify({
         ...results,
@@ -167,7 +159,7 @@ export class QuizService {
   /**
    * Retrieves quiz results from sessionStorage
    */
-  getQuizResults(): any | null {
+  getQuizResults(): QuizResults | null {
     try {
       const data = sessionStorage.getItem('quizResults');
       if (data) {
@@ -176,7 +168,7 @@ export class QuizService {
         if (parsed.timestamp) {
           parsed.timestamp = new Date(parsed.timestamp);
         }
-        return parsed;
+        return parsed as QuizResults;
       }
       return null;
     } catch (error) {
