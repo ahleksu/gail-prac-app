@@ -26,8 +26,45 @@ export class QuizService {
   readonly userAnswers = this.userAnswersSignal.asReadonly();
   readonly answerState = this.answerStateSignal.asReadonly();
 
+  // Shuffle setting
+  private shuffleEnabled = true;
+
+  /**
+   * Loads questions from all.json and filters by domain type if specified
+   * @param type - The quiz type ('all', 'fundamentals', 'google_cloud', 'techniques', 'business')
+   */
   loadQuestions(type: string): Observable<Question[]> {
-    return this.http.get<Question[]>(`/quiz/${type}.json`);
+    return this.http.get<Question[]>('/quiz/all.json').pipe(
+      map(questions => {
+        const domainFilters = DOMAIN_MAP[type];
+        
+        // If no filter or 'all', return all questions
+        if (!domainFilters || domainFilters.length === 0) {
+          return questions;
+        }
+        
+        // Filter questions by matching domain names (case-insensitive comparison)
+        return questions.filter(q => 
+          domainFilters.some(domain => 
+            q.domain?.toLowerCase() === domain.toLowerCase()
+          )
+        );
+      })
+    );
+  }
+
+  /**
+   * Get shuffle setting
+   */
+  getShuffleEnabled(): boolean {
+    return this.shuffleEnabled;
+  }
+
+  /**
+   * Set shuffle setting
+   */
+  setShuffleEnabled(enabled: boolean): void {
+    this.shuffleEnabled = enabled;
   }
 
   setQuestions(questions: Question[]): void {
@@ -120,5 +157,73 @@ export class QuizService {
       .map(value => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
       .map(({ value }) => value);
+  }
+
+  /**
+   * Sorts questions by their original ID order
+   */
+  sortByOriginalOrder(questions: Question[]): Question[] {
+    return [...questions].sort((a, b) => a.id - b.id);
+  }
+
+  /**
+   * Save quiz results to sessionStorage
+   */
+  saveQuizResults(results: unknown): void {
+    try {
+      sessionStorage.setItem('quizResults', JSON.stringify(results));
+    } catch (e) {
+      console.error('Failed to save quiz results:', e);
+    }
+  }
+
+  /**
+   * Load quiz results from sessionStorage
+   */
+  loadQuizResults(): unknown | null {
+    try {
+      const data = sessionStorage.getItem('quizResults');
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      console.error('Failed to load quiz results:', e);
+      return null;
+    }
+  }
+
+  /**
+   * Get quiz results from sessionStorage (alias for loadQuizResults)
+   */
+  getQuizResults(): unknown | null {
+    return this.loadQuizResults();
+  }
+
+  /**
+   * Clear quiz results from sessionStorage
+   */
+  clearQuizResults(): void {
+    try {
+      sessionStorage.removeItem('quizResults');
+    } catch (e) {
+      console.error('Failed to clear quiz results:', e);
+    }
+  }
+
+  /**
+   * Extract unique domains from questions for filtering
+   */
+  extractUniqueDomains(questions: Question[]): { name: string; value: string }[] {
+    const domains = new Set<string>();
+    questions.forEach(q => {
+      if (q.domain) {
+        domains.add(q.domain);
+      }
+    });
+    
+    const options = [{ name: 'All domains', value: 'All domains' }];
+    domains.forEach(domain => {
+      options.push({ name: domain, value: domain });
+    });
+    
+    return options;
   }
 }

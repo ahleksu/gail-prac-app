@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { ChartModule } from 'primeng/chart';
 import { ButtonModule } from 'primeng/button';
 import { ChartData, ChartOptions } from 'chart.js';
+import { QuizService } from '../../core/quiz.service';
+import { QuestionWithAnswer } from '../../core/quiz.model';
 
 interface DomainBreakdown {
   domain: string;
@@ -179,7 +181,7 @@ export class ResultComponent implements OnInit {
     if (history.state && history.state.questions) {
       questions = history.state.questions;
     } else {
-      const storedResults = this.quizService.getQuizResults();
+      const storedResults = this.quizService.getQuizResults() as { questions?: QuestionWithAnswer[] } | null;
       if (storedResults && storedResults.questions) {
         questions = storedResults.questions;
       }

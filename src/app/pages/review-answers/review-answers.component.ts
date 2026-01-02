@@ -6,6 +6,7 @@ import { ChipModule } from 'primeng/chip';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { QuizService } from '../../core/quiz.service';
+import { QuestionWithAnswer, Answer } from '../../core/quiz.model';
 
 interface ReviewQuestion {
   id: number;
@@ -47,14 +48,30 @@ export class ReviewAnswersComponent implements OnInit {
     const state = this.router.getCurrentNavigation()?.extras.state;
     let questionsData = state && state['questions']?.length ? state['questions'] : null;
     
-    if (state && state['questions']?.length) {
-      const questions = state['questions'].map((q: ReviewQuestion) => {
-        const correctAnswers = q.answers.filter(a => a.status === 'correct').map(a => a.text);
+    if (!questionsData) {
+      // Try history.state as fallback
+      const historyState = history.state;
+      if (historyState && historyState['questions']?.length) {
+        questionsData = historyState['questions'];
+      }
+    }
+    
+    if (!questionsData) {
+      // Try sessionStorage as last resort
+      const storedResults = this.quizService.getQuizResults() as { questions?: QuestionWithAnswer[] } | null;
+      if (storedResults && storedResults.questions?.length) {
+        questionsData = storedResults.questions;
+      }
+    }
+    
+    if (questionsData) {
+      const questions = questionsData.map((q: QuestionWithAnswer) => {
+        const correctAnswers = q.answers.filter((a: Answer) => a.status === 'correct').map((a: Answer) => a.text);
         const hasAnswer = q.userAnswer?.length > 0;
         const isCorrect =
           hasAnswer &&
           correctAnswers.length === q.userAnswer.length &&
-          correctAnswers.every(ans => q.userAnswer.includes(ans));
+          correctAnswers.every((ans: string) => q.userAnswer.includes(ans));
 
         return {
           ...q,
@@ -72,24 +89,6 @@ export class ReviewAnswersComponent implements OnInit {
       console.warn('ReviewAnswersComponent: Missing or invalid navigation state. Redirecting to home.');
       this.router.navigate(['/']);
     }
-    
-    const questions = questionsData.map((q: QuestionWithAnswer) => {
-      const correctAnswers = q.answers.filter(a => a.status === 'correct').map(a => a.text);
-      const hasAnswer = q.userAnswer?.length > 0;
-      const isCorrect =
-        hasAnswer &&
-        correctAnswers.length === q.userAnswer.length &&
-        correctAnswers.every(ans => q.userAnswer.includes(ans));
-
-      return {
-        ...q,
-        isCorrect,
-        isSkipped: !hasAnswer
-      };
-    });
-
-    this.allQuestions.set(questions);
-    this.filteredQuestions.set([...questions]);
   }
 
   filterQuestions(): void {
