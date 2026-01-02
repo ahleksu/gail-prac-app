@@ -11,6 +11,7 @@ export interface Question {
   resource?: string;
   type: 'single' | 'multiple';
   answers: Answer[];
+  originalIndex?: number; // Track original position for consistent ordering
 }
 
 export interface QuestionWithAnswer extends Question {
