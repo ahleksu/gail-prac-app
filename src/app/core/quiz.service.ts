@@ -153,88 +153,30 @@ export class QuizService {
   }
 
   /**
-   * Checks if sessionStorage is available
+   * Gets unique domain names from the loaded questions in the service
+   * Returns an array of objects with name and value properties for use in dropdowns
    */
-  private isSessionStorageAvailable(): boolean {
-    return typeof sessionStorage !== 'undefined';
+  getUniqueDomains(): { name: string; value: string }[] {
+    return this.extractUniqueDomains(this.questionsSignal());
   }
 
   /**
-   * Saves quiz results to sessionStorage for persistence across page refreshes
+   * Extracts unique domain names from a given array of questions
+   * Returns an array of objects with name and value properties for use in dropdowns
    */
-  saveQuizResults(results: QuizResults): void {
-    if (!this.isSessionStorageAvailable()) {
-      console.warn('sessionStorage is not available in this environment');
-      return;
-    }
-    try {
-      sessionStorage.setItem('quizResults', JSON.stringify({
-        ...results,
-        timestamp: results.timestamp.toISOString()
-      }));
-    } catch (error) {
-      console.error('Failed to save quiz results to sessionStorage:', error);
-    }
-  }
-
-  /**
-   * Retrieves quiz results from sessionStorage
-   */
-  getQuizResults(): QuizResults | null {
-    if (!this.isSessionStorageAvailable()) {
-      return null;
-    }
-    try {
-      const data = sessionStorage.getItem('quizResults');
-      if (data) {
-        const parsed = JSON.parse(data);
-        // Convert timestamp back to Date object
-        if (parsed.timestamp) {
-          parsed.timestamp = new Date(parsed.timestamp);
-        }
-        return parsed as QuizResults;
+  extractUniqueDomains(questions: { domain?: string }[]): { name: string; value: string }[] {
+    const uniqueDomains = new Set<string>();
+    
+    questions.forEach(q => {
+      if (q.domain) {
+        uniqueDomains.add(q.domain);
       }
-      return null;
-    } catch (error) {
-      console.error('Failed to retrieve quiz results from sessionStorage:', error);
-      return null;
-    }
-  }
+    });
 
-  /**
-   * Clears quiz results from sessionStorage
-   */
-  clearQuizResults(): void {
-    if (!this.isSessionStorageAvailable()) {
-      return;
-    }
-    try {
-      sessionStorage.removeItem('quizResults');
-    } catch (error) {
-      console.error('Failed to clear quiz results from sessionStorage:', error);
-    }
-  }
+    const domains = Array.from(uniqueDomains)
+      .sort()
+      .map(domain => ({ name: domain, value: domain }));
 
-  /**
-   * Sets shuffle preference
-   */
-  setShuffleEnabled(enabled: boolean): void {
-    this.shuffleEnabledSignal.set(enabled);
-  }
-
-  /**
-   * Gets shuffle preference
-   */
-  getShuffleEnabled(): boolean {
-    return this.shuffleEnabledSignal();
-  }
-
-  /**
-   * Sorts questions by original index for consistent ordering
-   */
-  sortByOriginalOrder(questions: Question[]): Question[] {
-    return [...questions].sort((a, b) => 
-      (a.originalIndex ?? 0) - (b.originalIndex ?? 0)
-    );
+    return [{ name: 'All domains', value: 'All domains' }, ...domains];
   }
 }

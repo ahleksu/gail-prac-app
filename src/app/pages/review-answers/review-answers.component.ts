@@ -6,7 +6,18 @@ import { ChipModule } from 'primeng/chip';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { QuizService } from '../../core/quiz.service';
-import { QuestionWithAnswer } from '../../core/quiz.model';
+
+interface ReviewQuestion {
+  id: number;
+  question: string;
+  domain: string;
+  type: 'single' | 'multiple';
+  answers: { text: string; status: 'correct' | 'skipped'; explanation: string }[];
+  userAnswer: string[];
+  resource?: string;
+  isCorrect?: boolean;
+  isSkipped?: boolean;
+}
 
 @Component({
   selector: 'app-review-answers',
@@ -24,13 +35,7 @@ export class ReviewAnswersComponent implements OnInit {
   selectedDomain = signal('All domains');
   showAll = signal(true);
 
-  domainOptions = signal([
-    { name: 'All domains', value: 'All domains' },
-    { name: 'Fundamentals of gen AI', value: 'Fundamentals of gen AI' },
-    { name: "Google Cloud's gen AI offerings", value: "Google Cloud's gen AI offerings" },
-    { name: 'Responsible AI practices', value: 'Responsible AI practices' },
-    { name: 'Gen AI applications', value: 'Gen AI applications' }
-  ]);
+  domainOptions = signal<{ name: string; value: string }[]>([]);
 
   totalQuestions = computed(() => this.allQuestions().length);
   correctAnswers = computed(() => this.allQuestions().filter(q => q.isCorrect).length);
@@ -60,6 +65,9 @@ export class ReviewAnswersComponent implements OnInit {
 
       this.allQuestions.set(questions);
       this.filteredQuestions.set([...questions]);
+      
+      // Derive domain options from the actual questions using the service method
+      this.domainOptions.set(this.quizService.extractUniqueDomains(questions));
     } else {
       console.warn('ReviewAnswersComponent: Missing or invalid navigation state. Redirecting to home.');
       this.router.navigate(['/']);
