@@ -65,8 +65,10 @@ export class QuizComponent implements OnInit {
     this.quizType = this.route.snapshot.queryParamMap.get('type') ?? 'all';
 
     this.quizService.loadQuestions(this.quizType).subscribe((data) => {
-      // Shuffle questions for a randomized quiz experience
-      const loadedQuestions = this.quizService.shuffleArray([...data]);
+      // Apply shuffling only if enabled
+      const loadedQuestions = this.quizService.getShuffleEnabled() 
+        ? this.quizService.shuffleArray([...data])
+        : data;
 
       this.questions.set(loadedQuestions);
       this.quizService.setQuestions(loadedQuestions);
@@ -206,7 +208,10 @@ export class QuizComponent implements OnInit {
       return acc;
     }, {} as Record<string, { correct: number; total: number; skipped: number }>);
 
-    const questionsWithAnswers = questions.map(q => ({
+    // Sort questions by original order for consistent review experience
+    const sortedQuestions = this.quizService.sortByOriginalOrder(questions);
+
+    const questionsWithAnswers = sortedQuestions.map(q => ({
       ...q,
       userAnswer: q.type === 'multiple'
         ? states[q.id]?.selectedOptions ?? []

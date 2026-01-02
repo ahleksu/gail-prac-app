@@ -20,11 +20,13 @@ export class QuizService {
   private questionsSignal = signal<Question[]>([]);
   private userAnswersSignal = signal<QuestionWithAnswer[]>([]);
   private answerStateSignal = signal<Record<number, AnswerState>>({});
+  private shuffleEnabledSignal = signal<boolean>(true);
 
   // Public readonly signals
   readonly questions = this.questionsSignal.asReadonly();
   readonly userAnswers = this.userAnswersSignal.asReadonly();
   readonly answerState = this.answerStateSignal.asReadonly();
+  readonly shuffleEnabled = this.shuffleEnabledSignal.asReadonly();
 
   /**
    * Loads questions from all.json and filters by domain type if specified
@@ -37,15 +39,19 @@ export class QuizService {
         
         // If no filter or 'all', return all questions
         if (!domainFilters || domainFilters.length === 0) {
-          return questions;
+          // Add original indices to all questions
+          return questions.map((q, index) => ({ ...q, originalIndex: index }));
         }
         
         // Filter questions by matching domain names (case-insensitive comparison)
-        return questions.filter(q => 
-          domainFilters.some(domain => 
-            q.domain?.toLowerCase() === domain.toLowerCase()
-          )
-        );
+        // and preserve original indices
+        return questions
+          .map((q, index) => ({ ...q, originalIndex: index }))
+          .filter(q => 
+            domainFilters.some(domain => 
+              q.domain?.toLowerCase() === domain.toLowerCase()
+            )
+          );
       })
     );
   }
@@ -140,5 +146,28 @@ export class QuizService {
       .map(value => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
       .map(({ value }) => value);
+  }
+
+  /**
+   * Sets shuffle preference
+   */
+  setShuffleEnabled(enabled: boolean): void {
+    this.shuffleEnabledSignal.set(enabled);
+  }
+
+  /**
+   * Gets shuffle preference
+   */
+  getShuffleEnabled(): boolean {
+    return this.shuffleEnabledSignal();
+  }
+
+  /**
+   * Sorts questions by original index for consistent ordering
+   */
+  sortByOriginalOrder(questions: Question[]): Question[] {
+    return [...questions].sort((a, b) => 
+      (a.originalIndex ?? 0) - (b.originalIndex ?? 0)
+    );
   }
 }

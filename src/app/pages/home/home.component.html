@@ -43,6 +43,18 @@
     </a>
   </div>
 
+  <!-- Shuffle Questions Option -->
+  <div class="flex justify-center items-center gap-2 mt-8 mb-4">
+    <p-checkbox
+      [(ngModel)]="shuffleQuestions"
+      [binary]="true"
+      inputId="shuffle"
+    />
+    <label for="shuffle" class="text-sm text-gray-700 cursor-pointer">
+      Shuffle questions (uncheck for consistent order when retaking)
+    </label>
+  </div>
+
   <!-- Grid Layout -->
   <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 mt-10">
     <!-- All Domains -->
