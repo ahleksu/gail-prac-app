@@ -7,7 +7,7 @@ import { Observable, map } from 'rxjs';
 const DOMAIN_MAP: Record<string, string[]> = {
   'all': [], // Empty means all questions
   'fundamentals': ['Fundamentals of gen AI'],
-  'google_cloud': ['Google Cloud\'s Gen AI Offerings'],
+  'google_cloud': ['Google Cloud\'s gen AI offerings', 'Google Cloud\'s Gen AI Offerings'],
   'techniques': ['Techniques to improve gen AI model output', 'Techniques to Improve Model Output'],
   'business': ['Business strategies for a successful gen AI solution', 'Business Strategies & Responsible AI']
 };
@@ -136,10 +136,14 @@ export class QuizService {
    * Shuffles array using Fisher-Yates algorithm
    */
   shuffleArray<T>(array: T[]): T[] {
-    return array
-      .map(value => ({ value, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ value }) => value);
+    const result = array.slice();
+
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+
+    return result;
   }
 
   /**

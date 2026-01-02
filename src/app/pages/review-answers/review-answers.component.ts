@@ -42,16 +42,27 @@ export class ReviewAnswersComponent implements OnInit {
     const state = this.router.getCurrentNavigation()?.extras.state;
     let questionsData = state && state['questions']?.length ? state['questions'] : null;
     
-    // If no questions from navigation, try sessionStorage
-    if (!questionsData) {
-      const storedResults = this.quizService.getQuizResults();
-      if (storedResults && storedResults.questions?.length) {
-        questionsData = storedResults.questions;
-      } else {
-        // No data available, redirect to home
-        this.router.navigate(['/']);
-        return;
-      }
+    if (state && state['questions']?.length) {
+      const questions = state['questions'].map((q: ReviewQuestion) => {
+        const correctAnswers = q.answers.filter(a => a.status === 'correct').map(a => a.text);
+        const hasAnswer = q.userAnswer?.length > 0;
+        const isCorrect =
+          hasAnswer &&
+          correctAnswers.length === q.userAnswer.length &&
+          correctAnswers.every(ans => q.userAnswer.includes(ans));
+
+        return {
+          ...q,
+          isCorrect,
+          isSkipped: !hasAnswer
+        };
+      });
+
+      this.allQuestions.set(questions);
+      this.filteredQuestions.set([...questions]);
+    } else {
+      console.warn('ReviewAnswersComponent: Missing or invalid navigation state. Redirecting to home.');
+      this.router.navigate(['/']);
     }
     
     const questions = questionsData.map((q: QuestionWithAnswer) => {

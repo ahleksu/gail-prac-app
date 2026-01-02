@@ -1,6 +1,6 @@
 export interface Answer {
   text: string;
-  status: 'correct' | 'skipped';
+  status: 'correct' | 'incorrect';
   explanation: string;
 }
 
