@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Question, QuestionWithAnswer, AnswerState, DomainSummary } from './quiz.model';
+import { Question, QuestionWithAnswer, AnswerState, DomainSummary, QuizResults } from './quiz.model';
 import { Observable, map } from 'rxjs';
 
 // Domain type mapping - maps route parameter to actual domain names in JSON
 const DOMAIN_MAP: Record<string, string[]> = {
   'all': [], // Empty means all questions
   'fundamentals': ['Fundamentals of gen AI'],
-  'google_cloud': ['Google Cloud\'s Gen AI Offerings'],
+  'google_cloud': ['Google Cloud\'s gen AI offerings', 'Google Cloud\'s Gen AI Offerings'],
   'techniques': ['Techniques to improve gen AI model output', 'Techniques to Improve Model Output'],
   'business': ['Business strategies for a successful gen AI solution', 'Business Strategies & Responsible AI']
 };
@@ -20,11 +20,13 @@ export class QuizService {
   private questionsSignal = signal<Question[]>([]);
   private userAnswersSignal = signal<QuestionWithAnswer[]>([]);
   private answerStateSignal = signal<Record<number, AnswerState>>({});
+  private shuffleEnabledSignal = signal<boolean>(true);
 
   // Public readonly signals
   readonly questions = this.questionsSignal.asReadonly();
   readonly userAnswers = this.userAnswersSignal.asReadonly();
   readonly answerState = this.answerStateSignal.asReadonly();
+  readonly shuffleEnabled = this.shuffleEnabledSignal.asReadonly();
 
   /**
    * Loads questions from all.json and filters by domain type if specified
@@ -37,15 +39,19 @@ export class QuizService {
         
         // If no filter or 'all', return all questions
         if (!domainFilters || domainFilters.length === 0) {
-          return questions;
+          // Add original indices to all questions
+          return questions.map((q, index) => ({ ...q, originalIndex: index }));
         }
         
         // Filter questions by matching domain names (case-insensitive comparison)
-        return questions.filter(q => 
-          domainFilters.some(domain => 
-            q.domain?.toLowerCase() === domain.toLowerCase()
-          )
-        );
+        // and preserve original indices
+        return questions
+          .map((q, index) => ({ ...q, originalIndex: index }))
+          .filter(q => 
+            domainFilters.some(domain => 
+              q.domain?.toLowerCase() === domain.toLowerCase()
+            )
+          );
       })
     );
   }

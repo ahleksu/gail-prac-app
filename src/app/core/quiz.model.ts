@@ -1,6 +1,6 @@
 export interface Answer {
   text: string;
-  status: 'correct' | 'skipped';
+  status: 'correct' | 'incorrect';
   explanation: string;
 }
 
@@ -11,6 +11,7 @@ export interface Question {
   resource?: string;
   type: 'single' | 'multiple';
   answers: Answer[];
+  originalIndex?: number; // Track original position for consistent ordering
 }
 
 export interface QuestionWithAnswer extends Question {
@@ -30,4 +31,14 @@ export interface AnswerState {
   selectedOptions?: string[];
   showExplanation: boolean;
   isCorrect: boolean;
+}
+
+export interface QuizResults {
+  total: number;
+  correct: number;
+  timestamp: Date;
+  domainSummary: Record<string, DomainSummary>;
+  type: string;
+  questions: QuestionWithAnswer[];
+  skipped?: number;
 }
