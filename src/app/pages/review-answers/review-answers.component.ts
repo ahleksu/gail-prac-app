@@ -6,18 +6,7 @@ import { ChipModule } from 'primeng/chip';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { QuizService } from '../../core/quiz.service';
-
-interface ReviewQuestion {
-  id: number;
-  question: string;
-  domain: string;
-  type: 'single' | 'multiple';
-  answers: { text: string; status: 'correct' | 'skipped'; explanation: string }[];
-  userAnswer: string[];
-  resource?: string;
-  isCorrect?: boolean;
-  isSkipped?: boolean;
-}
+import { QuestionWithAnswer } from '../../core/quiz.model';
 
 @Component({
   selector: 'app-review-answers',
@@ -30,8 +19,8 @@ export class ReviewAnswersComponent implements OnInit {
   private router = inject(Router);
   private quizService = inject(QuizService);
 
-  allQuestions = signal<ReviewQuestion[]>([]);
-  filteredQuestions = signal<ReviewQuestion[]>([]);
+  allQuestions = signal<QuestionWithAnswer[]>([]);
+  filteredQuestions = signal<QuestionWithAnswer[]>([]);
   selectedDomain = signal('All domains');
   showAll = signal(true);
 
@@ -65,7 +54,7 @@ export class ReviewAnswersComponent implements OnInit {
       }
     }
     
-    const questions = questionsData.map((q: ReviewQuestion) => {
+    const questions = questionsData.map((q: QuestionWithAnswer) => {
       const correctAnswers = q.answers.filter(a => a.status === 'correct').map(a => a.text);
       const hasAnswer = q.userAnswer?.length > 0;
       const isCorrect =
@@ -98,7 +87,7 @@ export class ReviewAnswersComponent implements OnInit {
     this.filterQuestions();
   }
 
-  isUserIncorrect(q: ReviewQuestion, answer: { status: string; text: string }): boolean {
+  isUserIncorrect(q: QuestionWithAnswer, answer: { status: string; text: string }): boolean {
     return q.userAnswer.includes(answer.text) && answer.status !== 'correct';
   }
 

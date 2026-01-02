@@ -42,7 +42,7 @@ export class ResultComponent implements OnInit {
     let state = history.state;
     
     // If no valid state from navigation, try sessionStorage
-    if (!state || !state['total']) {
+    if (!state || state['total'] === undefined) {
       const storedResults = this.quizService.getQuizResults();
       if (storedResults) {
         state = storedResults;

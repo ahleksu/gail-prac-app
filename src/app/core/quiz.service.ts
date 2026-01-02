@@ -146,6 +146,10 @@ export class QuizService {
    * Saves quiz results to sessionStorage for persistence across page refreshes
    */
   saveQuizResults(results: QuizResults): void {
+    if (typeof Storage === 'undefined') {
+      console.warn('sessionStorage is not available in this environment');
+      return;
+    }
     try {
       sessionStorage.setItem('quizResults', JSON.stringify({
         ...results,
@@ -160,6 +164,9 @@ export class QuizService {
    * Retrieves quiz results from sessionStorage
    */
   getQuizResults(): QuizResults | null {
+    if (typeof Storage === 'undefined') {
+      return null;
+    }
     try {
       const data = sessionStorage.getItem('quizResults');
       if (data) {
@@ -181,6 +188,9 @@ export class QuizService {
    * Clears quiz results from sessionStorage
    */
   clearQuizResults(): void {
+    if (typeof Storage === 'undefined') {
+      return;
+    }
     try {
       sessionStorage.removeItem('quizResults');
     } catch (error) {
