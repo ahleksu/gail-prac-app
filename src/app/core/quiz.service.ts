@@ -1,15 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Question, QuestionWithAnswer, AnswerState, DomainSummary, QuizResults } from './quiz.model';
+import { Question, QuestionWithAnswer, AnswerState, DomainSummary } from './quiz.model';
 import { Observable, map } from 'rxjs';
 
 // Domain type mapping - maps route parameter to actual domain names in JSON
+// Note: The JSON uses curly/smart apostrophe (') not straight apostrophe (')
 const DOMAIN_MAP: Record<string, string[]> = {
   'all': [], // Empty means all questions
   'fundamentals': ['Fundamentals of gen AI'],
-  'google_cloud': ['Google Cloud\'s gen AI offerings', 'Google Cloud\'s Gen AI Offerings'],
-  'techniques': ['Techniques to improve gen AI model output', 'Techniques to Improve Model Output'],
-  'business': ['Business strategies for a successful gen AI solution', 'Business Strategies & Responsible AI']
+  'google_cloud': [`Google Cloud\u2019s gen AI offerings`],
+  'techniques': ['Techniques to improve gen AI model output'],
+  'business': ['Business strategies for a successful gen AI solution']
 };
 
 @Injectable({ providedIn: 'root' })
@@ -20,13 +21,14 @@ export class QuizService {
   private questionsSignal = signal<Question[]>([]);
   private userAnswersSignal = signal<QuestionWithAnswer[]>([]);
   private answerStateSignal = signal<Record<number, AnswerState>>({});
-  private shuffleEnabledSignal = signal<boolean>(true);
 
   // Public readonly signals
   readonly questions = this.questionsSignal.asReadonly();
   readonly userAnswers = this.userAnswersSignal.asReadonly();
   readonly answerState = this.answerStateSignal.asReadonly();
-  readonly shuffleEnabled = this.shuffleEnabledSignal.asReadonly();
+
+  // Shuffle setting
+  private shuffleEnabled = true;
 
   /**
    * Loads questions from all.json and filters by domain type if specified
@@ -39,21 +41,31 @@ export class QuizService {
         
         // If no filter or 'all', return all questions
         if (!domainFilters || domainFilters.length === 0) {
-          // Add original indices to all questions
-          return questions.map((q, index) => ({ ...q, originalIndex: index }));
+          return questions;
         }
         
         // Filter questions by matching domain names (case-insensitive comparison)
-        // and preserve original indices
-        return questions
-          .map((q, index) => ({ ...q, originalIndex: index }))
-          .filter(q => 
-            domainFilters.some(domain => 
-              q.domain?.toLowerCase() === domain.toLowerCase()
-            )
-          );
+        return questions.filter(q => 
+          domainFilters.some(domain => 
+            q.domain?.toLowerCase() === domain.toLowerCase()
+          )
+        );
       })
     );
+  }
+
+  /**
+   * Get shuffle setting
+   */
+  getShuffleEnabled(): boolean {
+    return this.shuffleEnabled;
+  }
+
+  /**
+   * Set shuffle setting
+   */
+  setShuffleEnabled(enabled: boolean): void {
+    this.shuffleEnabled = enabled;
   }
 
   setQuestions(questions: Question[]): void {
@@ -142,41 +154,77 @@ export class QuizService {
    * Shuffles array using Fisher-Yates algorithm
    */
   shuffleArray<T>(array: T[]): T[] {
-    const result = array.slice();
+    return array
+      .map(value => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value);
+  }
 
-    for (let i = result.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [result[i], result[j]] = [result[j], result[i]];
+  /**
+   * Sorts questions by their original ID order
+   */
+  sortByOriginalOrder(questions: Question[]): Question[] {
+    return [...questions].sort((a, b) => a.id - b.id);
+  }
+
+  /**
+   * Save quiz results to sessionStorage
+   */
+  saveQuizResults(results: unknown): void {
+    try {
+      sessionStorage.setItem('quizResults', JSON.stringify(results));
+    } catch (e) {
+      console.error('Failed to save quiz results:', e);
     }
-
-    return result;
   }
 
   /**
-   * Gets unique domain names from the loaded questions in the service
-   * Returns an array of objects with name and value properties for use in dropdowns
+   * Load quiz results from sessionStorage
    */
-  getUniqueDomains(): { name: string; value: string }[] {
-    return this.extractUniqueDomains(this.questionsSignal());
+  loadQuizResults(): unknown | null {
+    try {
+      const data = sessionStorage.getItem('quizResults');
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      console.error('Failed to load quiz results:', e);
+      return null;
+    }
   }
 
   /**
-   * Extracts unique domain names from a given array of questions
-   * Returns an array of objects with name and value properties for use in dropdowns
+   * Get quiz results from sessionStorage (alias for loadQuizResults)
    */
-  extractUniqueDomains(questions: { domain?: string }[]): { name: string; value: string }[] {
-    const uniqueDomains = new Set<string>();
-    
+  getQuizResults(): unknown | null {
+    return this.loadQuizResults();
+  }
+
+  /**
+   * Clear quiz results from sessionStorage
+   */
+  clearQuizResults(): void {
+    try {
+      sessionStorage.removeItem('quizResults');
+    } catch (e) {
+      console.error('Failed to clear quiz results:', e);
+    }
+  }
+
+  /**
+   * Extract unique domains from questions for filtering
+   */
+  extractUniqueDomains(questions: Question[]): { name: string; value: string }[] {
+    const domains = new Set<string>();
     questions.forEach(q => {
       if (q.domain) {
-        uniqueDomains.add(q.domain);
+        domains.add(q.domain);
       }
     });
-
-    const domains = Array.from(uniqueDomains)
-      .sort()
-      .map(domain => ({ name: domain, value: domain }));
-
-    return [{ name: 'All domains', value: 'All domains' }, ...domains];
+    
+    const options = [{ name: 'All domains', value: 'All domains' }];
+    domains.forEach(domain => {
+      options.push({ name: domain, value: domain });
+    });
+    
+    return options;
   }
 }

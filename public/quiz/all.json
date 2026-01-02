@@ -1626,7 +1626,7 @@
     {
         "id": 57,
         "question": "A retail business wants to build a customer service chatbot that references their specific internal return policies and product manuals to answer questions accurately. They want to minimize hallucinations. Which technique should they prioritize?",
-        "domain": "Techniques to Improve Model Output",
+        "domain": "Techniques to improve gen AI model output",
         "resource": "https://cloud.google.com/vertex-ai/docs/generative-ai/grounding/overview",
         "type": "single",
         "answers": [
@@ -1655,7 +1655,7 @@
     {
         "id": 58,
         "question": "Your team needs to process a large volume of proprietary documents to create a searchable knowledge base using generative AI. You require a fully managed infrastructure that scales automatically and integrates directly with Google's search technologies. Which Google Cloud offering is best suited for this?",
-        "domain": "Google Cloud’s Gen AI Offerings",
+        "domain": "Google Cloud’s gen AI offerings",
         "resource": "https://cloud.google.com/generative-ai-app-builder/docs/builder-types",
         "type": "single",
         "answers": [
@@ -1684,7 +1684,7 @@
     {
         "id": 59,
         "question": "A financial institution plans to use a Large Language Model (LLM) to summarize confidential investment reports. They are concerned about their data being used to train the public foundation model. What assurance does Google Cloud's Vertex AI provide regarding this?",
-        "domain": "Google Cloud’s Gen AI Offerings",
+        "domain": "Google Cloud’s gen AI offerings",
         "resource": "https://cloud.google.com/vertex-ai/docs/generative-ai/data-governance",
         "type": "single",
         "answers": [
@@ -1713,7 +1713,7 @@
     {
         "id": 60,
         "question": "You are designing a generative AI application that requires logical reasoning to solve multi-step math problems. Simple zero-shot prompting is yielding incorrect results. Which prompt engineering technique should you apply to improve performance?",
-        "domain": "Techniques to Improve Model Output",
+        "domain": "Techniques to improve gen AI model output",
         "resource": "https://cloud.google.com/vertex-ai/docs/generative-ai/learn/prompt-design-strategies",
         "type": "single",
         "answers": [
@@ -1742,7 +1742,7 @@
     {
         "id": 61,
         "question": "An enterprise wants to adopt generative AI but must ensure that the system does not generate hate speech or sexually explicit content. Which Google Cloud capability directly addresses this requirement?",
-        "domain": "Business Strategies & Responsible AI",
+        "domain": "Business strategies for a successful gen AI solution",
         "resource": "https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai",
         "type": "single",
         "answers": [
@@ -1771,7 +1771,7 @@
     {
         "id": 62,
         "question": "A developer needs to quickly test a prompt for a marketing email generation task without writing any code. They want to experiment with different temperature settings and see immediate results. Which tool should they use?",
-        "domain": "Google Cloud’s Gen AI Offerings",
+        "domain": "Google Cloud’s gen AI offerings",
         "resource": "https://cloud.google.com/vertex-ai/docs/generative-ai/start/quickstarts/api-quickstart",
         "type": "single",
         "answers": [
@@ -1800,7 +1800,7 @@
     {
         "id": 63,
         "question": "Which component of Google's AI infrastructure is a custom-designed application-specific integrated circuit (ASIC) optimized specifically for accelerating machine learning workloads?",
-        "domain": "Google Cloud’s Gen AI Offerings",
+        "domain": "Google Cloud’s gen AI offerings",
         "resource": "https://cloud.google.com/tpu/docs/intro-to-tpu",
         "type": "single",
         "answers": [
@@ -1829,7 +1829,7 @@
     {
         "id": 64,
         "question": "A business leader is evaluating the risks of deploying a customer-facing gen AI chatbot. They are specifically worried about the model suggesting dangerous activities to users. This concern falls primarily under which Responsible AI dimension?",
-        "domain": "Business Strategies & Responsible AI",
+        "domain": "Business strategies for a successful gen AI solution",
         "resource": "https://ai.google/responsibility/principles/",
         "type": "single",
         "answers": [
@@ -1858,7 +1858,7 @@
     {
         "id": 65,
         "question": "You are building a 'Travel Assistant' agent using Vertex AI Agent Builder. The agent needs to look up real-time flight prices from an external API. What component should you define to enable this capability?",
-        "domain": "Google Cloud’s Gen AI Offerings",
+        "domain": "Google Cloud’s gen AI offerings",
         "resource": "https://cloud.google.com/generative-ai-app-builder/docs/agent-tools",
         "type": "single",
         "answers": [
@@ -1887,7 +1887,7 @@
     {
         "id": 66,
         "question": "What is the primary benefit of the 'Secure AI Framework (SAIF)' introduced by Google?",
-        "domain": "Business Strategies & Responsible AI",
+        "domain": "Business strategies for a successful gen AI solution",
         "resource": "https://cloud.google.com/security/saif",
         "type": "single",
         "answers": [
@@ -1916,7 +1916,7 @@
     {
         "id": 67,
         "question": "In the context of generative AI, what is 'hallucination'?",
-        "domain": "Techniques to Improve Model Output",
+        "domain": "Techniques to improve gen AI model output",
         "resource": "https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview",
         "type": "single",
         "answers": [
@@ -1945,7 +1945,7 @@
     {
         "id": 68,
         "question": "Which Google Cloud service offers a unified interface to discover, customize, and deploy a wide variety of models, including first-party (Gemini), open-source (Llama), and third-party models?",
-        "domain": "Google Cloud’s Gen AI Offerings",
+        "domain": "Google Cloud’s gen AI offerings",
         "resource": "https://cloud.google.com/vertex-ai/docs/start/explore-models",
         "type": "single",
         "answers": [
@@ -1974,7 +1974,7 @@
     {
         "id": 69,
         "question": "A startup wants to use AI to summarize legal contracts. They need to ensure that the summaries are extremely consistent and do not vary significantly between runs for the exact same input. Which parameter should they minimize?",
-        "domain": "Techniques to Improve Model Output",
+        "domain": "Techniques to improve gen AI model output",
         "resource": "https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models",
         "type": "single",
         "answers": [
@@ -2032,7 +2032,7 @@
     {
         "id": 71,
         "question": "An organization wants to integrate generative AI into their Google Workspace environment to help employees draft emails and organize sheets. Which offering is designed for this?",
-        "domain": "Google Cloud’s Gen AI Offerings",
+        "domain": "Google Cloud’s gen AI offerings",
         "resource": "https://workspace.google.com/blog/product-announcements/generative-ai",
         "type": "single",
         "answers": [
@@ -2090,7 +2090,7 @@
     {
         "id": 73,
         "question": "What is the role of 'embeddings' in a vector search or RAG system?",
-        "domain": "Techniques to Improve Model Output",
+        "domain": "Techniques to improve gen AI model output",
         "resource": "https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings",
         "type": "single",
         "answers": [
@@ -2119,7 +2119,7 @@
     {
         "id": 74,
         "question": "A developer wants to fine-tune a model using a very small dataset (e.g., 50 examples) to adapt the style of output. Which tuning method is most efficient and cost-effective on Vertex AI?",
-        "domain": "Techniques to Improve Model Output",
+        "domain": "Techniques to improve gen AI model output",
         "resource": "https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models",
         "type": "single",
         "answers": [
