@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ChartModule } from 'primeng/chart';
 import { ButtonModule } from 'primeng/button';
-import { QuizService } from '../../core/quiz.service';
-import { QuestionWithAnswer } from '../../core/quiz.model';
+import { ChartData, ChartOptions } from 'chart.js';
 
 interface DomainBreakdown {
   domain: string;
@@ -32,10 +31,10 @@ export class ResultComponent implements OnInit {
   domainBreakdown = signal<DomainBreakdown[]>([]);
   skippedAnswers = signal(0);
 
-  chartData = signal<any>(null);
-  chartOptions = signal<any>(null);
-  barChartData = signal<any>(null);
-  barChartOptions = signal<any>(null);
+  chartData = signal<ChartData<'doughnut'> | null>(null);
+  chartOptions = signal<ChartOptions<'doughnut'> | null>(null);
+  barChartData = signal<ChartData<'bar'> | null>(null);
+  barChartOptions = signal<ChartOptions<'bar'> | null>(null);
 
   private isValidQuizState(state: any): boolean {
     return state && 
