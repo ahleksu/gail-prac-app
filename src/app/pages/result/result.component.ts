@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ChartModule } from 'primeng/chart';
 import { ButtonModule } from 'primeng/button';
+import { QuizService } from '../../core/quiz.service';
 
 interface DomainBreakdown {
   domain: string;
@@ -20,6 +21,7 @@ interface DomainBreakdown {
 })
 export class ResultComponent implements OnInit {
   private router = inject(Router);
+  private quizService = inject(QuizService);
 
   totalQuestions = signal(0);
   correctAnswers = signal(0);
@@ -35,7 +37,20 @@ export class ResultComponent implements OnInit {
   barChartOptions = signal<any>(null);
 
   ngOnInit(): void {
-    const state = history.state;
+    // Try to get state from history.state first, fall back to sessionStorage
+    let state = history.state;
+    
+    // If no valid state from navigation, try sessionStorage
+    if (!state || !state['total']) {
+      const storedResults = this.quizService.getQuizResults();
+      if (storedResults) {
+        state = storedResults;
+      } else {
+        // No results available, redirect to home
+        this.router.navigate(['/']);
+        return;
+      }
+    }
     
     if (state) {
       const total = state['total'] ?? 0;
@@ -150,9 +165,19 @@ export class ResultComponent implements OnInit {
   }
 
   goToReview(): void {
+    // Get questions from history.state or sessionStorage
+    let questions = history.state.questions ?? [];
+    
+    if (!questions || questions.length === 0) {
+      const storedResults = this.quizService.getQuizResults();
+      if (storedResults && storedResults.questions) {
+        questions = storedResults.questions;
+      }
+    }
+
     this.router.navigate(['/review'], {
       state: {
-        questions: history.state.questions ?? []
+        questions: questions
       }
     });
   }

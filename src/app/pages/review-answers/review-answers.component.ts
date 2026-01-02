@@ -1,10 +1,11 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ChipModule } from 'primeng/chip';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
+import { QuizService } from '../../core/quiz.service';
 
 interface ReviewQuestion {
   id: number;
@@ -25,8 +26,9 @@ interface ReviewQuestion {
   templateUrl: './review-answers.component.html',
   styleUrl: './review-answers.component.css'
 })
-export class ReviewAnswersComponent {
+export class ReviewAnswersComponent implements OnInit {
   private router = inject(Router);
+  private quizService = inject(QuizService);
 
   allQuestions = signal<ReviewQuestion[]>([]);
   filteredQuestions = signal<ReviewQuestion[]>([]);
@@ -46,30 +48,40 @@ export class ReviewAnswersComponent {
   incorrectAnswers = computed(() => this.allQuestions().filter(q => !q.isCorrect && !q.isSkipped).length);
   skippedAnswers = computed(() => this.allQuestions().filter(q => q.isSkipped).length);
 
-  constructor() {
+  ngOnInit(): void {
+    // Try to get state from navigation first
     const state = this.router.getCurrentNavigation()?.extras.state;
+    let questionsData = state && state['questions']?.length ? state['questions'] : null;
     
-    if (state && state['questions']?.length) {
-      const questions = state['questions'].map((q: ReviewQuestion) => {
-        const correctAnswers = q.answers.filter(a => a.status === 'correct').map(a => a.text);
-        const hasAnswer = q.userAnswer?.length > 0;
-        const isCorrect =
-          hasAnswer &&
-          correctAnswers.length === q.userAnswer.length &&
-          correctAnswers.every(ans => q.userAnswer.includes(ans));
-
-        return {
-          ...q,
-          isCorrect,
-          isSkipped: !hasAnswer
-        };
-      });
-
-      this.allQuestions.set(questions);
-      this.filteredQuestions.set([...questions]);
-    } else {
-      this.router.navigate(['/']);
+    // If no questions from navigation, try sessionStorage
+    if (!questionsData) {
+      const storedResults = this.quizService.getQuizResults();
+      if (storedResults && storedResults.questions?.length) {
+        questionsData = storedResults.questions;
+      } else {
+        // No data available, redirect to home
+        this.router.navigate(['/']);
+        return;
+      }
     }
+    
+    const questions = questionsData.map((q: ReviewQuestion) => {
+      const correctAnswers = q.answers.filter(a => a.status === 'correct').map(a => a.text);
+      const hasAnswer = q.userAnswer?.length > 0;
+      const isCorrect =
+        hasAnswer &&
+        correctAnswers.length === q.userAnswer.length &&
+        correctAnswers.every(ans => q.userAnswer.includes(ans));
+
+      return {
+        ...q,
+        isCorrect,
+        isSkipped: !hasAnswer
+      };
+    });
+
+    this.allQuestions.set(questions);
+    this.filteredQuestions.set([...questions]);
   }
 
   filterQuestions(): void {

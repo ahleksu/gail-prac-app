@@ -141,4 +141,58 @@ export class QuizService {
       .sort((a, b) => a.sort - b.sort)
       .map(({ value }) => value);
   }
+
+  /**
+   * Saves quiz results to sessionStorage for persistence across page refreshes
+   */
+  saveQuizResults(results: {
+    total: number;
+    correct: number;
+    timestamp: Date;
+    domainSummary: Record<string, DomainSummary>;
+    type: string;
+    questions: any[];
+    skipped?: number;
+  }): void {
+    try {
+      sessionStorage.setItem('quizResults', JSON.stringify({
+        ...results,
+        timestamp: results.timestamp.toISOString()
+      }));
+    } catch (error) {
+      console.error('Failed to save quiz results to sessionStorage:', error);
+    }
+  }
+
+  /**
+   * Retrieves quiz results from sessionStorage
+   */
+  getQuizResults(): any | null {
+    try {
+      const data = sessionStorage.getItem('quizResults');
+      if (data) {
+        const parsed = JSON.parse(data);
+        // Convert timestamp back to Date object
+        if (parsed.timestamp) {
+          parsed.timestamp = new Date(parsed.timestamp);
+        }
+        return parsed;
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to retrieve quiz results from sessionStorage:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Clears quiz results from sessionStorage
+   */
+  clearQuizResults(): void {
+    try {
+      sessionStorage.removeItem('quizResults');
+    } catch (error) {
+      console.error('Failed to clear quiz results from sessionStorage:', error);
+    }
+  }
 }
