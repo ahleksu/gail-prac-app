@@ -46,7 +46,8 @@
   <!-- Shuffle Questions Option -->
   <div class="flex justify-center items-center gap-2 mt-8 mb-4">
     <p-checkbox
-      [(ngModel)]="shuffleQuestions"
+      [ngModel]="shuffleQuestions()"
+      (ngModelChange)="shuffleQuestions.set($event)"
       [binary]="true"
       inputId="shuffle"
     />

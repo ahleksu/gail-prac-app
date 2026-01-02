@@ -26,7 +26,7 @@ export class HomeComponent {
   private router = inject(Router);
   private quizService = inject(QuizService);
 
-  shuffleQuestions = signal(true);
+  shuffleQuestions = signal(this.quizService.getShuffleEnabled());
 
   startQuiz(type: string): void {
     this.quizService.setShuffleEnabled(this.shuffleQuestions());
