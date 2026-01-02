@@ -64,19 +64,8 @@ export class ReviewAnswersComponent {
       this.allQuestions.set(questions);
       this.filteredQuestions.set([...questions]);
       
-      // Derive domain options from the actual questions
-      const uniqueDomains = new Set<string>();
-      questions.forEach((q: ReviewQuestion) => {
-        if (q.domain) {
-          uniqueDomains.add(q.domain);
-        }
-      });
-      
-      const domains = Array.from(uniqueDomains)
-        .sort()
-        .map(domain => ({ name: domain, value: domain }));
-      
-      this.domainOptions.set([{ name: 'All domains', value: 'All domains' }, ...domains]);
+      // Derive domain options from the actual questions using the service method
+      this.domainOptions.set(this.quizService.extractUniqueDomains(questions));
     } else {
       this.router.navigate(['/']);
     }

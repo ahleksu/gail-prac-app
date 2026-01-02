@@ -147,11 +147,18 @@ export class QuizService {
   }
 
   /**
-   * Gets unique domain names from the loaded questions
+   * Gets unique domain names from the loaded questions in the service
    * Returns an array of objects with name and value properties for use in dropdowns
    */
   getUniqueDomains(): { name: string; value: string }[] {
-    const questions = this.questionsSignal();
+    return this.extractUniqueDomains(this.questionsSignal());
+  }
+
+  /**
+   * Extracts unique domain names from a given array of questions
+   * Returns an array of objects with name and value properties for use in dropdowns
+   */
+  extractUniqueDomains(questions: { domain?: string }[]): { name: string; value: string }[] {
     const uniqueDomains = new Set<string>();
     
     questions.forEach(q => {
