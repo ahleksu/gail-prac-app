@@ -68,6 +68,7 @@ export class ReviewAnswersComponent {
       this.allQuestions.set(questions);
       this.filteredQuestions.set([...questions]);
     } else {
+      console.warn('ReviewAnswersComponent: Missing or invalid navigation state. Redirecting to home.');
       this.router.navigate(['/']);
     }
   }
