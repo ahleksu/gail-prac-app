@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Question, QuestionWithAnswer, AnswerState, DomainSummary } from './quiz.model';
+import { Question, QuestionWithAnswer, AnswerState, DomainSummary, QuizResults } from './quiz.model';
 import { Observable, map } from 'rxjs';
 
 // Domain type mapping - maps route parameter to actual domain names in JSON
@@ -20,11 +20,13 @@ export class QuizService {
   private questionsSignal = signal<Question[]>([]);
   private userAnswersSignal = signal<QuestionWithAnswer[]>([]);
   private answerStateSignal = signal<Record<number, AnswerState>>({});
+  private shuffleEnabledSignal = signal<boolean>(true);
 
   // Public readonly signals
   readonly questions = this.questionsSignal.asReadonly();
   readonly userAnswers = this.userAnswersSignal.asReadonly();
   readonly answerState = this.answerStateSignal.asReadonly();
+  readonly shuffleEnabled = this.shuffleEnabledSignal.asReadonly();
 
   /**
    * Loads questions from all.json and filters by domain type if specified
@@ -37,15 +39,19 @@ export class QuizService {
         
         // If no filter or 'all', return all questions
         if (!domainFilters || domainFilters.length === 0) {
-          return questions;
+          // Add original indices to all questions
+          return questions.map((q, index) => ({ ...q, originalIndex: index }));
         }
         
         // Filter questions by matching domain names (case-insensitive comparison)
-        return questions.filter(q => 
-          domainFilters.some(domain => 
-            q.domain?.toLowerCase() === domain.toLowerCase()
-          )
-        );
+        // and preserve original indices
+        return questions
+          .map((q, index) => ({ ...q, originalIndex: index }))
+          .filter(q => 
+            domainFilters.some(domain => 
+              q.domain?.toLowerCase() === domain.toLowerCase()
+            )
+          );
       })
     );
   }
@@ -136,9 +142,41 @@ export class QuizService {
    * Shuffles array using Fisher-Yates algorithm
    */
   shuffleArray<T>(array: T[]): T[] {
-    return array
-      .map(value => ({ value, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ value }) => value);
+    const result = array.slice();
+
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+
+    return result;
+  }
+
+  /**
+   * Gets unique domain names from the loaded questions in the service
+   * Returns an array of objects with name and value properties for use in dropdowns
+   */
+  getUniqueDomains(): { name: string; value: string }[] {
+    return this.extractUniqueDomains(this.questionsSignal());
+  }
+
+  /**
+   * Extracts unique domain names from a given array of questions
+   * Returns an array of objects with name and value properties for use in dropdowns
+   */
+  extractUniqueDomains(questions: { domain?: string }[]): { name: string; value: string }[] {
+    const uniqueDomains = new Set<string>();
+    
+    questions.forEach(q => {
+      if (q.domain) {
+        uniqueDomains.add(q.domain);
+      }
+    });
+
+    const domains = Array.from(uniqueDomains)
+      .sort()
+      .map(domain => ({ name: domain, value: domain }));
+
+    return [{ name: 'All domains', value: 'All domains' }, ...domains];
   }
 }

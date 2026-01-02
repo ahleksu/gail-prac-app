@@ -1,10 +1,11 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ChipModule } from 'primeng/chip';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
+import { QuizService } from '../../core/quiz.service';
 
 interface ReviewQuestion {
   id: number;
@@ -25,29 +26,26 @@ interface ReviewQuestion {
   templateUrl: './review-answers.component.html',
   styleUrl: './review-answers.component.css'
 })
-export class ReviewAnswersComponent {
+export class ReviewAnswersComponent implements OnInit {
   private router = inject(Router);
+  private quizService = inject(QuizService);
 
-  allQuestions = signal<ReviewQuestion[]>([]);
-  filteredQuestions = signal<ReviewQuestion[]>([]);
+  allQuestions = signal<QuestionWithAnswer[]>([]);
+  filteredQuestions = signal<QuestionWithAnswer[]>([]);
   selectedDomain = signal('All domains');
   showAll = signal(true);
 
-  domainOptions = signal([
-    { name: 'All domains', value: 'All domains' },
-    { name: 'Fundamentals of gen AI', value: 'Fundamentals of gen AI' },
-    { name: "Google Cloud's gen AI offerings", value: "Google Cloud's gen AI offerings" },
-    { name: 'Responsible AI practices', value: 'Responsible AI practices' },
-    { name: 'Gen AI applications', value: 'Gen AI applications' }
-  ]);
+  domainOptions = signal<{ name: string; value: string }[]>([]);
 
   totalQuestions = computed(() => this.allQuestions().length);
   correctAnswers = computed(() => this.allQuestions().filter(q => q.isCorrect).length);
   incorrectAnswers = computed(() => this.allQuestions().filter(q => !q.isCorrect && !q.isSkipped).length);
   skippedAnswers = computed(() => this.allQuestions().filter(q => q.isSkipped).length);
 
-  constructor() {
+  ngOnInit(): void {
+    // Try to get state from navigation first
     const state = this.router.getCurrentNavigation()?.extras.state;
+    let questionsData = state && state['questions']?.length ? state['questions'] : null;
     
     if (state && state['questions']?.length) {
       const questions = state['questions'].map((q: ReviewQuestion) => {
@@ -67,9 +65,31 @@ export class ReviewAnswersComponent {
 
       this.allQuestions.set(questions);
       this.filteredQuestions.set([...questions]);
+      
+      // Derive domain options from the actual questions using the service method
+      this.domainOptions.set(this.quizService.extractUniqueDomains(questions));
     } else {
+      console.warn('ReviewAnswersComponent: Missing or invalid navigation state. Redirecting to home.');
       this.router.navigate(['/']);
     }
+    
+    const questions = questionsData.map((q: QuestionWithAnswer) => {
+      const correctAnswers = q.answers.filter(a => a.status === 'correct').map(a => a.text);
+      const hasAnswer = q.userAnswer?.length > 0;
+      const isCorrect =
+        hasAnswer &&
+        correctAnswers.length === q.userAnswer.length &&
+        correctAnswers.every(ans => q.userAnswer.includes(ans));
+
+      return {
+        ...q,
+        isCorrect,
+        isSkipped: !hasAnswer
+      };
+    });
+
+    this.allQuestions.set(questions);
+    this.filteredQuestions.set([...questions]);
   }
 
   filterQuestions(): void {
@@ -86,7 +106,7 @@ export class ReviewAnswersComponent {
     this.filterQuestions();
   }
 
-  isUserIncorrect(q: ReviewQuestion, answer: { status: string; text: string }): boolean {
+  isUserIncorrect(q: QuestionWithAnswer, answer: { status: string; text: string }): boolean {
     return q.userAnswer.includes(answer.text) && answer.status !== 'correct';
   }
 
