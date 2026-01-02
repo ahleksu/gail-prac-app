@@ -7,7 +7,7 @@ import { Observable, map } from 'rxjs';
 const DOMAIN_MAP: Record<string, string[]> = {
   'all': [], // Empty means all questions
   'fundamentals': ['Fundamentals of gen AI'],
-  'google_cloud': ['Google Cloud\'s gen AI offerings', 'Google Cloud\'s Gen AI Offerings'],
+  'google_cloud': ['Google Cloud\'s Gen AI Offerings'],
   'techniques': ['Techniques to improve gen AI model output', 'Techniques to Improve Model Output'],
   'business': ['Business strategies for a successful gen AI solution', 'Business Strategies & Responsible AI']
 };
