@@ -151,13 +151,42 @@ export class QuizService {
   }
 
   /**
-   * Shuffles array using Fisher-Yates algorithm
+   * Shuffles array in-place using Fisher-Yates (Durstenfeld) algorithm
+   * This is the most unbiased shuffling algorithm with O(n) complexity
+   * @param array - Array to shuffle
+   * @returns A new shuffled array (original is not modified)
    */
   shuffleArray<T>(array: T[]): T[] {
-    return array
-      .map(value => ({ value, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ value }) => value);
+    const result = [...array];
+    for (let i = result.length - 1; i > 0; i--) {
+      // Generate random index from 0 to i (inclusive)
+      const j = Math.floor(Math.random() * (i + 1));
+      // Swap elements at indices i and j
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }
+
+  /**
+   * Shuffles the answer choices for a single question
+   * Uses Fisher-Yates algorithm for unbiased randomization
+   * @param question - Question whose answers should be shuffled
+   * @returns A new question object with shuffled answers
+   */
+  shuffleQuestionAnswers(question: Question): Question {
+    return {
+      ...question,
+      answers: this.shuffleArray(question.answers)
+    };
+  }
+
+  /**
+   * Shuffles the answer choices for all questions in an array
+   * @param questions - Array of questions
+   * @returns A new array with all questions having shuffled answers
+   */
+  shuffleAllAnswers(questions: Question[]): Question[] {
+    return questions.map(q => this.shuffleQuestionAnswers(q));
   }
 
   /**
