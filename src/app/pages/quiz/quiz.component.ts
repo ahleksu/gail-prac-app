@@ -69,9 +69,12 @@ export class QuizComponent implements OnInit {
 
     this.quizService.loadQuestions(this.quizType).subscribe((data) => {
       // Apply shuffling only if enabled
-      const loadedQuestions = this.quizService.getShuffleEnabled() 
+      let loadedQuestions = this.quizService.getShuffleEnabled() 
         ? this.quizService.shuffleArray([...data])
         : data;
+
+      // Always shuffle answer choices to prevent pattern recognition
+      loadedQuestions = this.quizService.shuffleAllAnswers(loadedQuestions);
 
       this.questions.set(loadedQuestions);
       this.quizService.setQuestions(loadedQuestions);
